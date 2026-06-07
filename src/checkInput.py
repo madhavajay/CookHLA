@@ -28,6 +28,16 @@ dict_Complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
 p_MKref = re.compile(r'^(AA_|HLA_|SNP_|INS_)') # To exclude 'MakeReference' markers.
 
 
+def get_liftover(_from, _to):
+    chain_dir = join(dirname(dirname(__file__)), 'work', 'chains')
+    chain_file = join(chain_dir, '{}To{}.over.chain.gz'.format(_from, _to[0].upper() + _to[1:]))
+
+    if exists(chain_file):
+        return LiftOver(chain_file)
+
+    return LiftOver(_from, _to)
+
+
 def getSampleNumbers(_fam):
 
     with open(_fam, 'r') as f_fam:
@@ -54,8 +64,8 @@ def LiftDown_hg18(_bim, _hg, _out):
         
         """
 
-        lo_hg38_to_hg19 = LiftOver(HG_input, 'hg19')
-        lo_hg19_to_hg18 = LiftOver('hg19', 'hg18')
+        lo_hg38_to_hg19 = get_liftover(HG_input, 'hg19')
+        lo_hg19_to_hg18 = get_liftover('hg19', 'hg18')
 
         sr_hg19 = df_bim['BP'] \
             .astype(int) \
@@ -71,7 +81,7 @@ def LiftDown_hg18(_bim, _hg, _out):
 
     else:
 
-        lo = LiftOver(HG_input, 'hg18')  # Liftdown to hg18
+        lo = get_liftover(HG_input, 'hg18')  # Liftdown to hg18
 
         sr_hg18 = df_bim['BP'] \
             .astype(int) \

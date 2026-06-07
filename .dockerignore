@@ -1,0 +1,9 @@
+.git
+.gitignore
+work
+__pycache__
+*.pyc
+*.log
+*.nosex
+.DS_Store
+

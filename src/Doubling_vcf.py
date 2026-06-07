@@ -4,6 +4,12 @@ import os, sys, re
 import pandas as pd
 
 
+def df_map(_df, _function):
+    if hasattr(_df, 'map'):
+        return _df.map(_function)
+    return _df.applymap(_function)
+
+
 def Doubling_vcf(_input_vcf_body, _output_vcf_body):
 
     ### Loading input vcf file.
@@ -14,7 +20,7 @@ def Doubling_vcf(_input_vcf_body, _output_vcf_body):
 
     ### Doubling input vcf file.
 
-    df_vcf_doubled = pd.concat([item[1].str.extract(r'^(\d)\|(\d)', expand=True).applymap(lambda x : '|'.join([x,x])) for item in __vcf_body__.iteritems()], axis=1)
+    df_vcf_doubled = pd.concat([df_map(item[1].str.extract(r'^(\d)\|(\d)', expand=True), lambda x : '|'.join([x,x])) for item in __vcf_body__.items()], axis=1)
     # print(df_vcf_doubled.head())
 
 

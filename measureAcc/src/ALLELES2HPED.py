@@ -11,6 +11,11 @@ p_4digit_pair = re.compile(r'^(\d{4,5})?,(\d{4,5})?$')
 p_2digit_pair = re.compile(r'\d{2}?,\d{2}?')
 
 
+def df_map(_df, _function):
+    if hasattr(_df, 'map'):
+        return _df.map(_function)
+    return _df.applymap(_function)
+
 
 def ALLELES2HPED(_alleles, _out=None, _f_HLA_DRB1_1454to1401=False):
     
@@ -18,7 +23,7 @@ def ALLELES2HPED(_alleles, _out=None, _f_HLA_DRB1_1454to1401=False):
 #     print("df_alleles :\n{}\n".format(df_alleles.head()))
 
     ### Finding out 4-digit allele column
-    f_4digit = df_alleles.applymap(lambda x : (bool(p_4digit_pair.match(x)) and (not bool(re.match(r'^,$', x))))).apply(lambda x : x.any(), axis=0)
+    f_4digit = df_map(df_alleles, lambda x : (bool(p_4digit_pair.match(x)) and (not bool(re.match(r'^,$', x))))).apply(lambda x : x.any(), axis=0)
 #     print(f_4digit)
     
     df_alleles = pd.concat([df_alleles.iloc[:, [0,1,2]], df_alleles.loc[:, f_4digit]], axis=1)
@@ -82,12 +87,12 @@ def ALLELES2HPED(_alleles, _out=None, _f_HLA_DRB1_1454to1401=False):
     
     l_temp = []
 
-    for _c, _sr in df_alleles.iteritems():
+    for _c, _sr in df_alleles.items():
         
         column_name = _c
         sr_column = _sr
         
-        l_temp.append(sr_column.str.split(',', expand=True).applymap(lambda x : x if bool(p_4digit.match(x)) else '0'))
+        l_temp.append(df_map(sr_column.str.split(',', expand=True), lambda x : x if bool(p_4digit.match(x)) else '0'))
         
     df_alleles2 = pd.concat(l_temp, axis=1)
 #     print("df_alleles2 :\n{}\n".format(df_alleles2.head()))
